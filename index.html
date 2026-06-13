@@ -438,6 +438,57 @@
   }
   .stat-big-label { font-size: 13px; color: var(--muted); margin-top: 10px; text-transform: uppercase; letter-spacing: .15em; }
 
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .stat-item {
+    padding: 18px 14px;
+    background: var(--glass-strong);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #c7baff, #7afad0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .stat-label {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .loader-bar.broken {
+    background: rgba(255, 93, 115, 0.18);
+    border: 1px solid rgba(255, 93, 115, 0.35);
+    animation: shake .18s infinite;
+  }
+  .loader-bar.broken .loader-fill {
+    background: linear-gradient(90deg, var(--danger), #ff9966);
+  }
+  .loader-pct.broken {
+    background: linear-gradient(135deg, var(--danger), #ffa05d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+
   .confetti-piece {
     position: fixed; top: -10px;
     width: 9px; height: 14px;
@@ -634,6 +685,22 @@
         </div>
       </section>
 
+      <!-- 8.5. Gratitude meter -->
+      <section class="screen" data-screen="8-grat">
+        <div class="eyebrow"><span class="chip">08·5</span> Анализ отправителя</div>
+        <div class="emoji">💚</div>
+        <h1>Замер благодарности</h1>
+        <p class="lead">Перед открытием сообщения система измеряет, насколько отправитель благодарен.</p>
+        <div class="loader" style="margin-top:18px;">
+          <div class="loader-pct" id="grat-pct">0%</div>
+          <div class="loader-bar" id="grat-bar"><div class="loader-fill" id="grat-fill"></div></div>
+          <div class="loader-msg" id="grat-msg">Запуск измерения...</div>
+        </div>
+        <div class="btn-row" id="grat-actions" style="display:none;">
+          <button class="btn" data-next>Продолжить</button>
+        </div>
+      </section>
+
       <!-- 9. Loading -->
       <section class="screen" data-screen="8">
         <div class="eyebrow"><span class="chip">09</span> Подготовка данных</div>
@@ -655,11 +722,9 @@
         <div class="big-emoji">🎉</div>
         <div class="message-card">
           <p>Привет! 😊</p>
-          <p>Я просто хотел сказать спасибо за твою помощь.</p>
-          <p>Ты очень выручила меня, и я правда это ценю.</p>
-          <p>Поэтому мне захотелось сделать тебе что-то приятное в ответ.</p>
-          <p>Надеюсь, подарок тебе понравится и я не ошибся с выбором 😊</p>
-          <p>Желаю тебе побольше хороших дней, приятных сюрпризов и поводов для улыбки.</p>
+          <p>Просто хотел сказать тебе спасибо за помощь — ты правда меня очень выручила.</p>
+          <p>Мне захотелось сделать что-то приятное в ответ. И заодно поблагодарить за то, что не пожалела на меня своего драгоценного времени.</p>
+          <p>Надеюсь, подарок тебе понравится, и я не ошибся с выбором 😊</p>
           <p>Спасибо ещё раз!</p>
           <span class="heart">💚</span>
         </div>
@@ -936,11 +1001,27 @@
           </div>
         </div>
 
+        <h2 style="margin-top:24px;">📊 Статистика прохождения</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="stat-time">—</div>
+            <div class="stat-label">Время</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="stat-accuracy">—</div>
+            <div class="stat-label">С первой попытки</div>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn ghost" id="cert-btn">📜 Скачать сертификат</button>
+        </div>
+
         <div class="message-card" style="margin-top:22px;">
           <p style="font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:14px;">Системное сообщение</p>
           <p>Спасибо за участие в расследовании.</p>
           <p>Если ты дошла до этого места, значит квест всё-таки был не зря 😊</p>
-          <p style="text-align:center;margin-top:18px;font-size:20px;font-weight:600;">Хорошего дня, Алиша 💚</p>
+          <p style="text-align:center;margin-top:18px;font-size:20px;font-weight:600;">Хорошего тебе вечера!</p>
         </div>
       </section>
 
@@ -958,6 +1039,8 @@
   const stepCounter = document.getElementById('step-counter');
   let currentIndex = 0;
 
+  const stats = { startTime: null, firstTryCount: 0, totalQuizzes: 0 };
+
   function setProgress(i) {
     const pct = Math.round(((i) / (totalScreens - 1)) * 100);
     progressEl.style.width = pct + '%';
@@ -966,14 +1049,17 @@
 
   function goTo(i) {
     if (i < 0 || i >= totalScreens) return;
+    if (stats.startTime === null) stats.startTime = Date.now();
     screens[currentIndex].classList.remove('active');
     currentIndex = i;
     screens[currentIndex].classList.add('active');
     setProgress(i);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    if (currentIndex === 8) startLoading();
-    if (currentIndex === 25) launchConfetti();
+    const name = screens[currentIndex].dataset.screen;
+    if (name === '8') startLoading();
+    if (name === '8-grat') startGratitude();
+    if (name === '25') { launchConfetti(); populateStats(); }
   }
 
   // wire all next buttons
@@ -991,6 +1077,10 @@
     const nextBtn = group.parentElement.querySelector('[data-next]');
     const opts = group.querySelectorAll('.opt');
 
+    let firstTry = true;
+    let answered = false;
+    stats.totalQuizzes++;
+
     opts.forEach(opt => {
       opt.addEventListener('click', () => {
         const i = parseInt(opt.getAttribute('data-i'), 10);
@@ -998,7 +1088,10 @@
         const msg = feedback[i] || '';
 
         if (isCorrect) {
-          // lock and show correct state
+          if (!answered) {
+            answered = true;
+            if (firstTry) stats.firstTryCount++;
+          }
           opts.forEach(o => o.classList.add('locked'));
           opt.classList.add('correct');
           if (feedbackEl) {
@@ -1007,13 +1100,13 @@
           }
           if (nextBtn) nextBtn.disabled = false;
         } else {
+          firstTry = false;
           opt.classList.add('wrong');
           opt.classList.add('locked');
           if (feedbackEl) {
             feedbackEl.textContent = msg;
             feedbackEl.className = 'feedback show no';
           }
-          // Allow them to try again
         }
       });
     });
@@ -1120,6 +1213,149 @@
       document.body.appendChild(piece);
       setTimeout(() => piece.remove(), 6000);
     }
+  }
+
+  // Gratitude meter
+  let gratStarted = false;
+  function startGratitude() {
+    if (gratStarted) return;
+    gratStarted = true;
+    const pct = document.getElementById('grat-pct');
+    const bar = document.getElementById('grat-bar');
+    const fill = document.getElementById('grat-fill');
+    const msg = document.getElementById('grat-msg');
+    const actions = document.getElementById('grat-actions');
+
+    let val = 0;
+    msg.textContent = 'Идёт замер...';
+    const phase1 = setInterval(() => {
+      val += 3;
+      if (val >= 100) {
+        val = 100;
+        clearInterval(phase1);
+        pct.textContent = '100%';
+        fill.style.width = '100%';
+        msg.textContent = '⚠️ Шкала на максимуме. Перекалибровка...';
+        setTimeout(phase2, 900);
+      } else {
+        pct.textContent = val + '%';
+        fill.style.width = val + '%';
+      }
+    }, 28);
+
+    function phase2() {
+      bar.classList.add('broken');
+      pct.classList.add('broken');
+      msg.textContent = 'Шкала не справляется. Продолжаем без неё.';
+      let v = 100;
+      const target = 847;
+      const phase3 = setInterval(() => {
+        v += Math.max(4, Math.round((target - v) * 0.07));
+        if (v >= target) {
+          v = target;
+          clearInterval(phase3);
+          pct.textContent = '847%';
+          msg.textContent = '✅ Замер завершён. Результат подозрительный, но честный.';
+          actions.style.display = 'flex';
+        } else {
+          pct.textContent = v + '%';
+        }
+      }, 35);
+    }
+  }
+
+  // Stats display
+  function populateStats() {
+    const elapsed = Math.max(0, Math.round((Date.now() - (stats.startTime || Date.now())) / 1000));
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    const accuracy = stats.totalQuizzes > 0
+      ? Math.round((stats.firstTryCount / stats.totalQuizzes) * 100)
+      : 100;
+    const timeEl = document.getElementById('stat-time');
+    const accEl = document.getElementById('stat-accuracy');
+    if (timeEl) timeEl.textContent = m + ':' + String(s).padStart(2, '0');
+    if (accEl) accEl.textContent = accuracy + '%';
+    window.__questStats = { elapsed, m, s, accuracy };
+  }
+
+  // Certificate
+  const certBtn = document.getElementById('cert-btn');
+  if (certBtn) certBtn.addEventListener('click', downloadCertificate);
+
+  function downloadCertificate() {
+    const s = window.__questStats || { m: 0, s: 0, accuracy: 100 };
+    const W = 1600, H = 1100;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#13102a');
+    bg.addColorStop(1, '#0a2238');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const glow = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.6);
+    glow.addColorStop(0, 'rgba(124, 92, 255, 0.18)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(199, 186, 255, 0.55)';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(70, 70, W - 140, H - 140);
+    ctx.strokeStyle = 'rgba(122, 250, 208, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(95, 95, W - 190, H - 190);
+
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#c7baff';
+    ctx.font = 'bold 32px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('ОФИЦИАЛЬНЫЙ СЕРТИФИКАТ', W/2, 200);
+
+    ctx.fillStyle = '#f3f4f8';
+    ctx.font = 'bold 88px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('Дело №404', W/2, 330);
+
+    ctx.fillStyle = '#9aa0b4';
+    ctx.font = '26px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('Настоящим подтверждается, что', W/2, 440);
+
+    ctx.fillStyle = '#7afad0';
+    ctx.font = 'bold 76px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('Алиша Ким', W/2, 555);
+
+    ctx.fillStyle = '#d6d8e4';
+    ctx.font = '26px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('успешно прошла секретный квест-расследование,', W/2, 640);
+    ctx.fillText('сохранила улыбку и установила личность отправителя.', W/2, 680);
+
+    ctx.fillStyle = '#c7baff';
+    ctx.font = 'bold 30px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('Время: ' + s.m + ':' + String(s.s).padStart(2,'0') + '   ·   Точность первой попытки: ' + s.accuracy + '%', W/2, 790);
+
+    const today = new Date().toLocaleDateString('ru-RU', { day:'2-digit', month:'long', year:'numeric' });
+    ctx.fillStyle = '#9aa0b4';
+    ctx.font = '22px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('Выдано: ' + today, W/2, 900);
+    ctx.font = 'italic 22px -apple-system, "SF Pro Display", "Segoe UI", sans-serif';
+    ctx.fillText('Подпись системы: 99.9%', W/2, 940);
+
+    ctx.font = '64px sans-serif';
+    ctx.fillText('🕵️   💚   🏆', W/2, 1020);
+
+    canvas.toBlob(function (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sertificate-case-404-alisha.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }, 'image/png');
   }
 
   // Initial
