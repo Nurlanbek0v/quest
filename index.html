@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0b14" />
+<title>Секретный доступ</title>
+<style>
+  :root {
+    --bg-0: #07070d;
+    --bg-1: #0e0e1a;
+    --bg-2: #15152a;
+    --accent: #7c5cff;
+    --accent-2: #00e5a8;
+    --danger: #ff5d73;
+    --text: #f3f4f8;
+    --muted: #9aa0b4;
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-strong: rgba(255, 255, 255, 0.09);
+    --border: rgba(255, 255, 255, 0.10);
+    --shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg-0);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(124, 92, 255, 0.25), transparent 60%),
+      radial-gradient(50% 45% at 85% 20%, rgba(0, 229, 168, 0.18), transparent 60%),
+      radial-gradient(50% 40% at 50% 100%, rgba(255, 93, 115, 0.18), transparent 60%),
+      linear-gradient(180deg, var(--bg-0), var(--bg-1));
+    z-index: -2;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .app {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom);
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 4px 8px;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .brand-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 16px var(--accent-2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.4); opacity: 0.5; }
+  }
+
+  .progress-wrap {
+    position: relative;
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 4px 18px;
+  }
+  .progress-bar {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 4px;
+    transition: width 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+
+  main {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px 0 40px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 540px;
+    background: var(--glass);
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 32px 26px 28px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 30%);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .screen { display: none; animation: fade .45s cubic-bezier(.2,.7,.2,1); }
+  .screen.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(10px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .eyebrow .chip {
+    background: rgba(124,92,255,0.18);
+    color: #c7baff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    letter-spacing: .18em;
+  }
+
+  h1 {
+    font-size: 28px;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 0 0 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  p.lead {
+    font-size: 16px;
+    line-height: 1.55;
+    color: #d6d8e4;
+    margin: 0 0 8px;
+  }
+  p.sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0 0 8px;
+  }
+  .emoji {
+    font-size: 44px;
+    display: inline-block;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 8px 16px rgba(124,92,255,.3));
+  }
+
+  .options { display: grid; gap: 10px; margin-top: 18px; }
+  .opt {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--border);
+    background: var(--glass-strong);
+    color: var(--text);
+    text-align: left;
+    padding: 16px 18px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform .18s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease;
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    line-height: 1.35;
+  }
+  .opt::before {
+    content: "";
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    transition: all .25s ease;
+  }
+  .opt:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+  .opt:active { transform: translateY(0) scale(.99); }
+  .opt.correct { border-color: rgba(0,229,168,0.6); background: rgba(0,229,168,0.12); box-shadow: 0 0 0 4px rgba(0,229,168,0.10); }
+  .opt.correct::before { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 12px rgba(0,229,168,.6); }
+  .opt.wrong { border-color: rgba(255,93,115,0.55); background: rgba(255,93,115,0.10); }
+  .opt.wrong::before { background: var(--danger); border-color: var(--danger); }
+  .opt.locked { pointer-events: none; opacity: .85; }
+  .opt.locked:not(.correct):not(.wrong) { opacity: .4; }
+
+  .feedback {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #e5e7f1;
+    display: none;
+  }
+  .feedback.show { display: block; animation: slide .35s ease; }
+  .feedback.ok { border-color: rgba(0,229,168,0.4); background: rgba(0,229,168,0.08); }
+  .feedback.no { border-color: rgba(255,93,115,0.4); background: rgba(255,93,115,0.07); }
+  @keyframes slide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-row { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn {
+    appearance: none; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), #5e3df0);
+    color: white;
+    padding: 16px 26px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+    min-height: 54px;
+    box-shadow: 0 16px 36px rgba(124,92,255,0.40), inset 0 1px 0 rgba(255,255,255,0.20);
+    transition: transform .15s ease, box-shadow .25s ease, filter .25s ease;
+  }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+  .btn:active { transform: translateY(0) scale(.99); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn.ghost {
+    background: rgba(255,255,255,0.06);
+    box-shadow: inset 0 0 0 1px var(--border);
+    color: var(--text);
+  }
+  .btn.success {
+    background: linear-gradient(135deg, var(--accent-2), #00b389);
+    box-shadow: 0 16px 36px rgba(0,229,168,0.30), inset 0 1px 0 rgba(255,255,255,0.20);
+  }
+
+  .checklist { display: grid; gap: 10px; margin-top: 18px; }
+  .check-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--glass-strong);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all .25s ease;
+  }
+  .check-item.checked { border-color: rgba(0,229,168,0.4); background: rgba(0,229,168,0.07); }
+  .check-box {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.3);
+    display: grid; place-items: center;
+    transition: all .25s ease;
+    flex-shrink: 0;
+  }
+  .check-item.checked .check-box { background: var(--accent-2); border-color: var(--accent-2); }
+  .check-box svg { width: 14px; height: 14px; opacity: 0; transition: opacity .2s ease; }
+  .check-item.checked .check-box svg { opacity: 1; }
+
+  .alert {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(255,93,115,0.10);
+    border: 1px solid rgba(255,93,115,0.30);
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #ffd7dc;
+    margin-bottom: 14px;
+  }
+
+  .info-card {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(124,92,255,0.10);
+    border: 1px solid rgba(124,92,255,0.30);
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #d8d0ff;
+  }
+
+  .big-emoji { font-size: 72px; line-height: 1; margin-bottom: 10px; text-align: center; }
+
+  .luck-display {
+    text-align: center;
+    margin: 22px 0 6px;
+    padding: 28px 16px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(124,92,255,.18), rgba(0,229,168,.18));
+    border: 1px solid var(--border);
+  }
+  .luck-pct {
+    font-size: 56px; font-weight: 700;
+    background: linear-gradient(135deg, #c7baff, #7afad0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .luck-label { font-size: 13px; color: var(--muted); letter-spacing: .15em; text-transform: uppercase; margin-top: 8px; }
+
+  .loader { text-align: center; padding: 16px 0 8px; }
+  .loader-pct {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+    margin: 14px 0 18px;
+  }
+  .loader-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 18px 0 12px;
+  }
+  .loader-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .4s ease;
+    border-radius: 6px;
+  }
+  .loader-msg {
+    font-size: 13px; color: var(--muted);
+    height: 18px; margin-top: 4px;
+  }
+
+  .message-card {
+    padding: 26px 22px;
+    border-radius: 22px;
+    background: linear-gradient(160deg, rgba(124,92,255,.13), rgba(0,229,168,.13));
+    border: 1px solid var(--border);
+    line-height: 1.65;
+    font-size: 16.5px;
+    color: #ecedf6;
+  }
+  .message-card p { margin: 0 0 14px; }
+  .message-card p:last-child { margin-bottom: 0; }
+  .message-card .heart {
+    font-size: 32px;
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    animation: heartbeat 1.8s ease-in-out infinite;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .results-list { display: grid; gap: 10px; margin-top: 16px; }
+  .result-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    background: rgba(0,229,168,.07);
+    border: 1px solid rgba(0,229,168,.25);
+    border-radius: 14px;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+  .result-item .check {
+    color: var(--accent-2);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .rewards { display: grid; gap: 10px; margin-top: 16px; }
+  .reward-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--glass-strong);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font-size: 14.5px;
+  }
+  .reward-icon {
+    font-size: 26px;
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    background: rgba(124,92,255,0.15);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .stat-big {
+    text-align: center;
+    padding: 24px 16px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(124,92,255,.18), rgba(0,229,168,.16));
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .stat-big-value {
+    font-size: 68px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #c7baff, #7afad0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .stat-big-label { font-size: 13px; color: var(--muted); margin-top: 10px; text-transform: uppercase; letter-spacing: .15em; }
+
+  .confetti-piece {
+    position: fixed; top: -10px;
+    width: 9px; height: 14px;
+    z-index: 100;
+    border-radius: 2px;
+    animation: fall linear forwards;
+    pointer-events: none;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  .footer {
+    text-align: center;
+    padding: 18px 0;
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 26px 20px 22px; border-radius: 24px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 19px; }
+    .opt { font-size: 15px; padding: 14px 16px; }
+    .btn { padding: 15px 22px; font-size: 15px; }
+    .luck-pct, .loader-pct { font-size: 48px; }
+    .stat-big-value { font-size: 56px; }
+    .message-card { font-size: 15.5px; padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span> Система проверки</div>
+    <div id="step-counter">—</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+
+  <main>
+    <div class="card" id="card">
+
+      <!-- 1. Secret access -->
+      <section class="screen active" data-screen="0">
+        <div class="eyebrow"><span class="chip">01</span> Секретный доступ</div>
+        <div class="emoji">🔒</div>
+        <h1>Внимание</h1>
+        <p class="lead">Обнаружен QR-код неизвестного происхождения.</p>
+        <p class="sub">Система не рекомендует переходить дальше.</p>
+        <p class="sub" style="margin-top:14px;">По статистике, именно после таких предупреждений люди и нажимают кнопку.</p>
+        <div class="btn-row">
+          <button class="btn" data-next>Продолжить</button>
+        </div>
+      </section>
+
+      <!-- 2. Surname detection -->
+      <section class="screen" data-screen="1">
+        <div class="eyebrow"><span class="chip">02</span> Определение личности</div>
+        <div class="emoji">🤖</div>
+        <h1>Автоматическое определение</h1>
+        <p class="lead">Система считает, что ваша фамилия:</p>
+        <div class="options"
+             data-correct="0"
+             data-feedback='["Наконец-то мы пришли к согласию 😄","Смелая попытка.","Система просит прекратить дезинформацию."]'>
+          <button class="opt" data-i="0">Ким</button>
+          <button class="opt" data-i="1">Не Ким</button>
+          <button class="opt" data-i="2">Точно не Ким</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled>Продолжить</button>
+        </div>
+      </section>
+
+      <!-- 3. Pre-warning checklist -->
+      <section class="screen" data-screen="2">
+        <div class="eyebrow"><span class="chip">03</span> Предупреждение</div>
+        <div class="emoji">⚠️</div>
+        <h1>Перед началом</h1>
+        <p class="lead">Убедитесь, что:</p>
+        <div class="checklist" id="prep-list">
+          <div class="check-item" data-check>
+            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div>Вы не управляете самолётом</div>
+          </div>
+          <div class="check-item" data-check>
+            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div>Вы не управляете космическим кораблём</div>
+          </div>
+          <div class="check-item" data-check>
+            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div>У вас есть 2 минуты свободного времени</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled id="ready-btn">Я готова</button>
+        </div>
+      </section>
+
+      <!-- 4. Identity check -->
+      <section class="screen" data-screen="3">
+        <div class="eyebrow"><span class="chip">04</span> Проверка личности</div>
+        <div class="emoji">📋</div>
+        <h1>Кто получил подарок?</h1>
+        <div class="options"
+             data-correct="2"
+             data-feedback='["К сожалению, он сейчас занят.","Она сейчас проходит другой квест.","Верно. Личность подтверждена."]'>
+          <button class="opt" data-i="0">Роналдо</button>
+          <button class="opt" data-i="1">Шакира</button>
+          <button class="opt" data-i="2">Алиша</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled>Продолжить</button>
+        </div>
+      </section>
+
+      <!-- 5. Smile check -->
+      <section class="screen" data-screen="4">
+        <div class="eyebrow"><span class="chip">05</span> Проверка настроения</div>
+        <div class="emoji">😊</div>
+        <h1>Обязательное действие</h1>
+        <p class="lead">Перед продолжением необходимо выполнить:</p>
+        <p class="sub" style="font-size:16px;color:#d6d8e4;margin-top:10px;">Улыбнуться хотя бы на 1 секунду</p>
+        <div class="checklist">
+          <div class="check-item" id="smile-check" data-check>
+            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div>Готово</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled id="smile-btn">Продолжить</button>
+        </div>
+      </section>
+
+      <!-- 6. Smile verification -->
+      <section class="screen" data-screen="5">
+        <div class="eyebrow"><span class="chip">06</span> Дополнительная проверка</div>
+        <div class="emoji">🤔</div>
+        <h1>А вы точно улыбнулись?</h1>
+        <div class="options"
+             data-correct="0"
+             data-feedback='["Красивая улыбка. Продолжаем.","Попытка обмана системы обнаружена.","Система засчитала половину улыбки."]'>
+          <button class="opt" data-i="0">Да</button>
+          <button class="opt" data-i="1">Нет</button>
+          <button class="opt" data-i="2">Возможно</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled>Продолжить</button>
+        </div>
+      </section>
+
+      <!-- 7. Luck generator -->
+      <section class="screen" data-screen="6">
+        <div class="eyebrow"><span class="chip">07</span> Генератор удачи</div>
+        <div class="emoji">🎲</div>
+        <h1>Проверка уровня удачи</h1>
+        <p class="lead">Нажмите кнопку для запуска генератора.</p>
+        <div id="luck-area">
+          <div class="btn-row">
+            <button class="btn" id="luck-btn">Проверить</button>
+          </div>
+        </div>
+        <div id="luck-result" style="display:none;">
+          <div class="luck-display">
+            <div style="font-size:36px;margin-bottom:6px;">🍀</div>
+            <div class="luck-pct" id="luck-value">0%</div>
+            <div class="luck-label">Уровень удачи сегодня</div>
+          </div>
+          <p class="sub" style="margin-top:14px;text-align:center;">Система считает это подозрительным, но допустимым.</p>
+          <div class="btn-row">
+            <button class="btn" data-next>Продолжить</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Dance question -->
+      <section class="screen" data-screen="7">
+        <div class="eyebrow"><span class="chip">08</span> Государственный вопрос</div>
+        <div class="emoji">💃</div>
+        <h1>Нужен ли опыт в танцах, чтобы танцевать как вы?</h1>
+        <div class="options"
+             data-correct="1"
+             data-feedback='["Следствие сомневается.","Верно. Главное — начать 😊","Система сообщает, что это чит-код."]'>
+          <button class="opt" data-i="0">Да</button>
+          <button class="opt" data-i="1">Нет</button>
+          <button class="opt" data-i="2">Нужно родиться на сцене</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled>Продолжить</button>
+        </div>
+      </section>
+
+      <!-- 9. Loading -->
+      <section class="screen" data-screen="8">
+        <div class="eyebrow"><span class="chip">09</span> Подготовка данных</div>
+        <div class="emoji">⏳</div>
+        <h1>Загрузка сообщения...</h1>
+        <div class="loader">
+          <div class="loader-pct" id="load-pct">0%</div>
+          <div class="loader-bar"><div class="loader-fill" id="load-fill"></div></div>
+          <div class="loader-msg" id="load-msg">Инициализация...</div>
+        </div>
+        <div class="btn-row" id="load-actions" style="display:none;">
+          <button class="btn success" data-next>Открыть сообщение</button>
+        </div>
+      </section>
+
+      <!-- 10. Secret message -->
+      <section class="screen" data-screen="9">
+        <div class="eyebrow"><span class="chip">10</span> Секретное сообщение</div>
+        <div class="big-emoji">🎉</div>
+        <div class="message-card">
+          <p>Привет! 😊</p>
+          <p>Я просто хотел сказать спасибо за твою помощь.</p>
+          <p>Ты очень выручила меня, и я правда это ценю.</p>
+          <p>Поэтому мне захотелось сделать тебе что-то приятное в ответ.</p>
+          <p>Надеюсь, подарок тебе понравится и я не ошибся с выбором 😊</p>
+          <p>Желаю тебе побольше хороших дней, приятных сюрпризов и поводов для улыбки.</p>
+          <p>Спасибо ещё раз!</p>
+          <span class="heart">💚</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-next>Дальше</button>
+        </div>
+      </section>
+
+      <!-- 11. Unlock bonus -->
+      <section class="screen" data-screen="10">
+        <div class="eyebrow"><span class="chip">11</span> Бонус разблокирован</div>
+        <div class="emoji">🔍</div>
+        <h1>Дополнительный контент</h1>
+        <p class="lead">Хочешь попробовать узнать отправителя?</p>
+        <div class="options"
+             data-correct="any"
+             data-feedback='["🕵️ Тогда начинаем расследование.","🕵️ Тогда начинаем расследование.","🕵️ Тогда начинаем расследование."]'>
+          <button class="opt" data-i="0">Да</button>
+          <button class="opt" data-i="1">Конечно</button>
+          <button class="opt" data-i="2">Уже догадываюсь</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row">
+          <button class="btn" data-next disabled>Открыть дело №404</button>
+        </div>
+      </section>
+
+      <!-- 12. Case 404 intro -->
+      <section class="screen" data-screen="11">
+        <div class="eyebrow"><span class="chip">Дело</span> №404</div>
+        <div class="big-emoji">🕵️</div>
+        <h1>Установление личности отправителя</h1>
+        <p class="sub">Начинаем расследование. 11 вопросов. Цель — установить личность отправителя с высокой точностью.</p>
+        <div class="info-card" style="margin-top:18px;">
+          Подсказка: правильные ответы помечены ответами свидетеля.
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-next>Начать расследование</button>
+        </div>
+      </section>
+
+      <!-- Q1 -->
+      <section class="screen" data-screen="12">
+        <div class="eyebrow"><span class="chip">Вопрос 1</span> Дело №404</div>
+        <h2>Отправитель:</h2>
+        <div class="options"
+             data-correct="2"
+             data-feedback='["Если бы отправитель был миллиардером, подарок доставили бы на вертолёте.","Следствие считает эту версию преждевременной.","Верно. Круг подозреваемых сократился до нескольких миллиардов."]'>
+          <button class="opt" data-i="0">Миллиардер</button>
+          <button class="opt" data-i="1">Тайный поклонник</button>
+          <button class="opt" data-i="2">Человек</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q2 -->
+      <section class="screen" data-screen="13">
+        <div class="eyebrow"><span class="chip">Вопрос 2</span> Дело №404</div>
+        <h2>Отправитель умеет:</h2>
+        <div class="options"
+             data-correct="0"
+             data-feedback='["Верно. База данных обновлена.","Полезный навык. Но не тот ответ.","Особенно когда доставка пишет «через 2 дня»."]'>
+          <button class="opt" data-i="0">Играть в баскетбол</button>
+          <button class="opt" data-i="1">Дышать</button>
+          <button class="opt" data-i="2">Ждать</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q3 -->
+      <section class="screen" data-screen="14">
+        <div class="eyebrow"><span class="chip">Вопрос 3</span> Дело №404</div>
+        <h2>Что обычно делает отправитель в 2 часа ночи?</h2>
+        <div class="options"
+             data-correct="2"
+             data-feedback='["Звучит слишком разумно.","Кабинет министров сегодня не собирался.","Классика."]'>
+          <button class="opt" data-i="0">Спит</button>
+          <button class="opt" data-i="1">Принимает важные государственные решения</button>
+          <button class="opt" data-i="2">Исправляет проблему, которую сам создал 5 минут назад</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q4 -->
+      <section class="screen" data-screen="15">
+        <div class="eyebrow"><span class="chip">Вопрос 4</span> Дело №404</div>
+        <h2>Размер обуви отправителя</h2>
+        <div class="alert">⚠️ Этот вопрос с подвохом. Рекомендуется подумать дважды.</div>
+        <div class="options"
+             data-correct="1"
+             data-feedback='["Логично. Но в этот раз всё оказалось проще.","Верно. Иногда подвох заключается в том, что его нет 😄","Если бы это было правдой, обувь пришлось бы заказывать отдельным транспортом."]'>
+          <button class="opt" data-i="0">12</button>
+          <button class="opt" data-i="1">42</button>
+          <button class="opt" data-i="2">142</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q5 -->
+      <section class="screen" data-screen="16">
+        <div class="eyebrow"><span class="chip">Вопрос 5</span> Дело №404</div>
+        <h2>Что любит делать отправитель?</h2>
+        <div class="options"
+             data-correct="1"
+             data-feedback='["Тогда бы сейчас была обычная открытка.","Улик становится всё больше.","Даже у него есть пределы."]'>
+          <button class="opt" data-i="0">Всё упрощать</button>
+          <button class="opt" data-i="1">Всё усложнять</button>
+          <button class="opt" data-i="2">Усложнять уже усложнённое</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q6 -->
+      <section class="screen" data-screen="17">
+        <div class="eyebrow"><span class="chip">Вопрос 6</span> Дело №404</div>
+        <h2>Отправитель умеет считать:</h2>
+        <div class="options"
+             data-correct="2"
+             data-feedback='["Калькулятор был бы слишком лёгким путём.","Тогда этот квест никогда бы не появился.","Верно. Следствие впечатлено."]'>
+          <button class="opt" data-i="0">Через калькулятор</button>
+          <button class="opt" data-i="1">Совсем нет</button>
+          <button class="opt" data-i="2">Даже десятичные числа в уме</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q7 -->
+      <section class="screen" data-screen="18">
+        <div class="eyebrow"><span class="chip">Вопрос 7</span> Дело №404</div>
+        <h2>Что бы выбрал отправитель?</h2>
+        <div class="options"
+             data-correct="2"
+             data-feedback='["Слишком просто.","Уже близко.","Следствие начинает что-то подозревать."]'>
+          <button class="opt" data-i="0">Обычную открытку</button>
+          <button class="opt" data-i="1">QR-код</button>
+          <button class="opt" data-i="2">Мини-квест ради одного сообщения</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q8 -->
+      <section class="screen" data-screen="19">
+        <div class="eyebrow"><span class="chip">Вопрос 8</span> Дело №404</div>
+        <h2>Что сейчас больше всего волнует отправителя?</h2>
+        <div class="options"
+             data-correct="2"
+             data-feedback='["Не настолько.","Проверяется по вторникам.","Уровень переживания: выше среднего 😄"]'>
+          <button class="opt" data-i="0">Курс биткоина</button>
+          <button class="opt" data-i="1">Погода на Марсе</button>
+          <button class="opt" data-i="2">Понравится ли подарок</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q9 -->
+      <section class="screen" data-screen="20">
+        <div class="eyebrow"><span class="chip">Вопрос 9</span> Дело №404</div>
+        <div class="alert" style="background: rgba(124,92,255,0.10); border-color: rgba(124,92,255,0.30); color: #d8d0ff;">
+          ⚠️ Система обнаружила проблему. Найдено слишком много положительных характеристик получателя. Выберите одну:
+        </div>
+        <div class="options"
+             data-correct="5"
+             data-feedback='["Верно. Но это только часть проблемы.","Тоже верно. Следствие продолжает работу.","База данных подтверждает. Но этого недостаточно.","Зафиксировано неоднократно.","Подтверждено независимым расследованием.","Именно. Система тоже не понимает 😄"]'>
+          <button class="opt" data-i="0">Добрая</button>
+          <button class="opt" data-i="1">Умная</button>
+          <button class="opt" data-i="2">Красивая</button>
+          <button class="opt" data-i="3">Весёлая</button>
+          <button class="opt" data-i="4">Талантливая</button>
+          <button class="opt" data-i="5">Почему можно выбрать только одну?</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q10 -->
+      <section class="screen" data-screen="21">
+        <div class="eyebrow"><span class="chip">Вопрос 10</span> Дело №404</div>
+        <h2>Отправитель выше тебя ростом?</h2>
+        <div class="options"
+             data-correct="0"
+             data-feedback='["Очередное совпадение? 🤔","Следствие рекомендует посмотреть немного выше.","Неожиданно профессиональный подход."]'>
+          <button class="opt" data-i="0">Да</button>
+          <button class="opt" data-i="1">Нет</button>
+          <button class="opt" data-i="2">Для ответа требуется рулетка</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q11 -->
+      <section class="screen" data-screen="22">
+        <div class="eyebrow"><span class="chip">Вопрос 11</span> Дело №404</div>
+        <h2>Хочет ли отправитель, чтобы вы догадались?</h2>
+        <div class="options"
+             data-correct="1"
+             data-feedback='["Тогда расследование было бы гораздо проще.","Верно. Отправитель считает, что хорошие загадки должны оставаться загадками 😄","Следствие отказывается комментировать данный вариант."]'>
+          <button class="opt" data-i="0">Да</button>
+          <button class="opt" data-i="1">Нет</button>
+          <button class="opt" data-i="2">Уже поздно</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>Дальше</button></div>
+      </section>
+
+      <!-- Q11.7 -->
+      <section class="screen" data-screen="23">
+        <div class="eyebrow"><span class="chip">Вопрос 11.7</span> Дело №404</div>
+        <h2>Какова вероятность, что ты уже догадалась?</h2>
+        <div class="options"
+             data-correct="any"
+             data-feedback='["😄 Операция «Конспирация» проходит успешно.","🤔 Следствие считает это опасным уровнем подозрений.","😄 Поздравляем. Вы раскрыли дело быстрее, чем планировалось."]'>
+          <button class="opt" data-i="0">0%</button>
+          <button class="opt" data-i="1">50%</button>
+          <button class="opt" data-i="2">100%</button>
+        </div>
+        <div class="feedback" data-feedback-el></div>
+        <div class="btn-row"><button class="btn" data-next disabled>К результатам</button></div>
+      </section>
+
+      <!-- Results -->
+      <section class="screen" data-screen="24">
+        <div class="eyebrow"><span class="chip">📊</span> Результаты расследования</div>
+        <div class="big-emoji">🔬</div>
+        <h1>Установлено</h1>
+        <div class="results-list">
+          <div class="result-item"><span class="check">✓</span><span>Отправитель — человек</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Играет в баскетбол</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Иногда чинит проблемы, которые сам создаёт</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Размер обуви 42</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Любит всё усложнять</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Умеет считать даже десятичные числа в уме</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Сделал целый квест вместо открытки</span></div>
+          <div class="result-item"><span class="check">✓</span><span>Очень надеется, что подарок понравится</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-next>Финальный экран</button>
+        </div>
+      </section>
+
+      <!-- Final -->
+      <section class="screen" data-screen="25">
+        <div class="eyebrow"><span class="chip">🏆</span> Расследование завершено</div>
+        <div class="stat-big">
+          <div class="stat-big-value">99.9%</div>
+          <div class="stat-big-label">Вероятность определения</div>
+        </div>
+        <p class="sub" style="text-align:center;">Оставшиеся 0.1% зарезервированы на случай ошибок системы 😄</p>
+
+        <h2 style="margin-top:24px;">🎁 Полученные награды</h2>
+        <div class="rewards">
+          <div class="reward-item">
+            <div class="reward-icon">🏅</div>
+            <div><strong>Достижение:</strong> «Дошла до конца»</div>
+          </div>
+          <div class="reward-item">
+            <div class="reward-icon">⭐</div>
+            <div><strong>+100</strong> к удаче</div>
+          </div>
+          <div class="reward-item">
+            <div class="reward-icon">😊</div>
+            <div><strong>+50</strong> к настроению</div>
+          </div>
+          <div class="reward-item">
+            <div class="reward-icon">🕵️</div>
+            <div><strong>Навык:</strong> «Определение отправителей по странным квестам»</div>
+          </div>
+        </div>
+
+        <div class="message-card" style="margin-top:22px;">
+          <p style="font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:14px;">Системное сообщение</p>
+          <p>Спасибо за участие в расследовании.</p>
+          <p>Если ты дошла до этого места, значит квест всё-таки был не зря 😊</p>
+          <p style="text-align:center;margin-top:18px;font-size:20px;font-weight:600;">Хорошего дня, Алиша 💚</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="footer">Сделано с большим количеством кода и небольшим количеством здравого смысла</div>
+</div>
+
+<script>
+(function () {
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  const totalScreens = screens.length;
+  const progressEl = document.getElementById('progress');
+  const stepCounter = document.getElementById('step-counter');
+  let currentIndex = 0;
+
+  function setProgress(i) {
+    const pct = Math.round(((i) / (totalScreens - 1)) * 100);
+    progressEl.style.width = pct + '%';
+    stepCounter.textContent = (i + 1) + ' / ' + totalScreens;
+  }
+
+  function goTo(i) {
+    if (i < 0 || i >= totalScreens) return;
+    screens[currentIndex].classList.remove('active');
+    currentIndex = i;
+    screens[currentIndex].classList.add('active');
+    setProgress(i);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (currentIndex === 8) startLoading();
+    if (currentIndex === 25) launchConfetti();
+  }
+
+  // wire all next buttons
+  document.querySelectorAll('[data-next]').forEach(btn => {
+    btn.addEventListener('click', () => goTo(currentIndex + 1));
+  });
+
+  // Quiz options
+  document.querySelectorAll('.options').forEach(group => {
+    const correctRaw = group.getAttribute('data-correct');
+    const correctIdx = correctRaw === 'any' ? 'any' : parseInt(correctRaw, 10);
+    let feedback = [];
+    try { feedback = JSON.parse(group.getAttribute('data-feedback') || '[]'); } catch(e){}
+    const feedbackEl = group.parentElement.querySelector('[data-feedback-el]');
+    const nextBtn = group.parentElement.querySelector('[data-next]');
+    const opts = group.querySelectorAll('.opt');
+
+    opts.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const i = parseInt(opt.getAttribute('data-i'), 10);
+        const isCorrect = (correctIdx === 'any') || (i === correctIdx);
+        const msg = feedback[i] || '';
+
+        if (isCorrect) {
+          // lock and show correct state
+          opts.forEach(o => o.classList.add('locked'));
+          opt.classList.add('correct');
+          if (feedbackEl) {
+            feedbackEl.textContent = msg;
+            feedbackEl.className = 'feedback show ok';
+          }
+          if (nextBtn) nextBtn.disabled = false;
+        } else {
+          opt.classList.add('wrong');
+          opt.classList.add('locked');
+          if (feedbackEl) {
+            feedbackEl.textContent = msg;
+            feedbackEl.className = 'feedback show no';
+          }
+          // Allow them to try again
+        }
+      });
+    });
+  });
+
+  // Checklist (screen 2)
+  const prepItems = document.querySelectorAll('#prep-list [data-check]');
+  const readyBtn = document.getElementById('ready-btn');
+  function updatePrep() {
+    const all = Array.from(prepItems).every(el => el.classList.contains('checked'));
+    if (readyBtn) readyBtn.disabled = !all;
+  }
+  prepItems.forEach(el => {
+    el.addEventListener('click', () => {
+      el.classList.toggle('checked');
+      updatePrep();
+    });
+  });
+
+  // Smile check
+  const smileCheck = document.getElementById('smile-check');
+  const smileBtn = document.getElementById('smile-btn');
+  if (smileCheck && smileBtn) {
+    smileCheck.addEventListener('click', () => {
+      smileCheck.classList.toggle('checked');
+      smileBtn.disabled = !smileCheck.classList.contains('checked');
+    });
+  }
+
+  // Luck generator
+  const luckBtn = document.getElementById('luck-btn');
+  const luckArea = document.getElementById('luck-area');
+  const luckResult = document.getElementById('luck-result');
+  const luckValue = document.getElementById('luck-value');
+  if (luckBtn) {
+    luckBtn.addEventListener('click', () => {
+      luckBtn.disabled = true;
+      luckBtn.textContent = 'Сканирование...';
+      let current = 0;
+      const target = 127;
+      const interval = setInterval(() => {
+        current += Math.max(1, Math.round((target - current) * 0.15));
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+          setTimeout(() => {
+            luckArea.style.display = 'none';
+            luckResult.style.display = 'block';
+            luckValue.textContent = target + '%';
+          }, 300);
+        }
+        luckBtn.textContent = current + '%';
+      }, 40);
+    });
+  }
+
+  // Loading screen
+  const loadPct = document.getElementById('load-pct');
+  const loadFill = document.getElementById('load-fill');
+  const loadMsg = document.getElementById('load-msg');
+  const loadActions = document.getElementById('load-actions');
+  let loadStarted = false;
+  function startLoading() {
+    if (loadStarted) return;
+    loadStarted = true;
+    const steps = [
+      [10, 'Поиск нужных слов...'],
+      [37, 'Проверка искренности...'],
+      [64, 'Шифрование пожеланий...'],
+      [89, 'Окончательная сборка...'],
+      [99, 'Ещё пара секунд...'],
+      [99, 'Ещё пара секунд...'],
+      [99, 'Ещё пара секунд...'],
+      [100, '✅ Доступ разрешён'],
+    ];
+    let idx = 0;
+    function tick() {
+      if (idx >= steps.length) {
+        loadActions.style.display = 'flex';
+        return;
+      }
+      const [pct, msg] = steps[idx];
+      loadPct.textContent = pct + '%';
+      loadFill.style.width = pct + '%';
+      loadMsg.textContent = msg;
+      idx++;
+      setTimeout(tick, pct === 99 ? 700 : 550);
+    }
+    tick();
+  }
+
+  // Confetti
+  function launchConfetti() {
+    const colors = ['#7c5cff', '#00e5a8', '#ff5d73', '#ffd166', '#c7baff'];
+    const count = 90;
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+      piece.style.animationDelay = (Math.random() * 1.2) + 's';
+      piece.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 6000);
+    }
+  }
+
+  // Initial
+  setProgress(0);
+})();
+</script>
+</body>
+</html>
