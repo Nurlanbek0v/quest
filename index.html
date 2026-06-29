@@ -249,10 +249,91 @@
     min-height: 54px;
     box-shadow: 0 16px 36px rgba(124,92,255,0.40), inset 0 1px 0 rgba(255,255,255,0.20);
     transition: transform .15s ease, box-shadow .25s ease, filter .25s ease;
+    position: relative; overflow: hidden;
   }
-  .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
-  .btn:active { transform: translateY(0) scale(.99); }
+  .btn::after {
+    content: '';
+    position: absolute; top: 0; left: -120%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+    transform: skewX(-18deg);
+    pointer-events: none;
+  }
+  .btn:hover::after { animation: btn-shimmer .6s ease forwards; }
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 20px 48px rgba(124,92,255,0.55), inset 0 1px 0 rgba(255,255,255,0.20); }
+  .btn:active { transform: scale(0.96); filter: brightness(0.95); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.pressing { animation: btn-bounce .38s cubic-bezier(.3,.7,.4,1.5) forwards; }
+  @keyframes btn-shimmer {
+    from { left: -120%; }
+    to   { left: 150%; }
+  }
+  @keyframes btn-bounce {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(0.93); }
+    60%  { transform: scale(1.06); }
+    80%  { transform: scale(0.98); }
+    100% { transform: scale(1); }
+  }
+
+  /* Ripple */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-expand .55s linear forwards;
+    background: rgba(255,255,255,0.20);
+    pointer-events: none;
+  }
+  @keyframes ripple-expand {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Option animations */
+  .opt { position: relative; overflow: hidden; }
+  @keyframes opt-pop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.05); }
+    65%  { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+  @keyframes opt-wobble {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    15%  { transform: translateX(-8px) rotate(-1.2deg); }
+    30%  { transform: translateX(8px) rotate(1.2deg); }
+    45%  { transform: translateX(-5px) rotate(-0.6deg); }
+    60%  { transform: translateX(5px) rotate(0.6deg); }
+    75%  { transform: translateX(-3px); }
+    90%  { transform: translateX(3px); }
+  }
+  .opt.correct { animation: opt-pop .42s cubic-bezier(.3,.7,.4,1.5); }
+  .opt.wrong   { animation: opt-wobble .45s ease; }
+
+  /* Sparkle burst */
+  .sparkle {
+    position: fixed; pointer-events: none; z-index: 9999;
+    font-size: 20px; line-height: 1;
+    animation: sparkle-fly .85s ease-out forwards;
+  }
+  @keyframes sparkle-fly {
+    0%   { opacity: 1; transform: translate(0,0) scale(0.4) rotate(0deg); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.3) rotate(var(--dr)); }
+  }
+
+  /* Big emoji float */
+  .big-emoji { animation: emoji-float 3.5s ease-in-out infinite; }
+  @keyframes emoji-float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50%       { transform: translateY(-10px) rotate(3deg); }
+  }
+
+  /* Checklist pop */
+  @keyframes check-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.04); }
+    70%  { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+  .check-item.pop { animation: check-pop .32s ease; }
 
   .btn.ghost {
     background: rgba(255,255,255,0.06);
@@ -749,23 +830,6 @@
         </div>
       </section>
 
-      <!-- 10. Secret message -->
-      <section class="screen" data-screen="9">
-        <div class="eyebrow"><span class="chip">10</span> Секретное сообщение</div>
-        <div class="big-emoji">🎉</div>
-        <div class="message-card">
-          <p>Привет! 😊</p>
-          <p>Просто хотел сказать тебе спасибо за помощь — ты правда меня очень выручила.</p>
-          <p>Мне захотелось сделать что-то приятное в ответ. И заодно поблагодарить за то, что не пожалела на меня своего драгоценного времени.</p>
-          <p>Надеюсь, подарок тебе понравится, и я не ошибся с выбором 😊</p>
-          <p>Спасибо ещё раз!</p>
-          <span class="heart">💚</span>
-        </div>
-        <div class="btn-row">
-          <button class="btn" data-next>Дальше</button>
-        </div>
-      </section>
-
       <!-- 11. Unlock bonus -->
       <section class="screen" data-screen="10">
         <div class="eyebrow"><span class="chip">11</span> Бонус разблокирован</div>
@@ -1046,7 +1110,24 @@
           <div class="result-item"><span class="check">✓</span><span>Очень надеется, что подарок понравится</span></div>
         </div>
         <div class="btn-row">
-          <button class="btn" data-next>Финальный экран</button>
+          <button class="btn" data-next>Открыть сообщение</button>
+        </div>
+      </section>
+
+      <!-- Secret message -->
+      <section class="screen" data-screen="9">
+        <div class="eyebrow"><span class="chip">✉️</span> Секретное сообщение</div>
+        <div class="big-emoji">🎉</div>
+        <div class="message-card">
+          <p>Привет! 😊</p>
+          <p>Просто хотел сказать тебе спасибо за помощь — ты правда меня очень выручила.</p>
+          <p>Мне захотелось сделать что-то приятное в ответ. И заодно поблагодарить за то, что не пожалела на меня своего драгоценного времени.</p>
+          <p>Надеюсь, подарок тебе понравится, и я не ошибся с выбором 😊</p>
+          <p>Спасибо ещё раз!</p>
+          <span class="heart">💚</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-next>Дальше</button>
         </div>
       </section>
 
@@ -1438,6 +1519,73 @@
 
   // Initial
   setProgress(0);
+
+  // === BUTTON ANIMATIONS ===
+  function addRipple(el, e) {
+    const rect = el.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = (e.clientX - rect.left) - size / 2;
+    const y = (e.clientY - rect.top) - size / 2;
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+    el.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  }
+
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      if (btn.disabled) return;
+      addRipple(btn, e);
+      btn.classList.remove('pressing');
+      void btn.offsetWidth;
+      btn.classList.add('pressing');
+      setTimeout(() => btn.classList.remove('pressing'), 400);
+    });
+  });
+
+  // === SPARKLE BURST ===
+  function spawnSparkles(el) {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const icons = ['✨','⭐','💫','🌟','✦','⚡'];
+    for (let i = 0; i < 9; i++) {
+      const s = document.createElement('span');
+      s.className = 'sparkle';
+      s.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 9) * 2 * Math.PI + Math.random() * 0.4;
+      const dist = 55 + Math.random() * 70;
+      s.style.left = cx + 'px';
+      s.style.top  = cy + 'px';
+      s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      s.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+      s.style.setProperty('--dr', (Math.random() * 360 - 180) + 'deg');
+      s.style.animationDelay = (Math.random() * 0.12) + 's';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1000);
+    }
+  }
+
+  // Hook sparkles & ripple onto quiz options
+  document.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', e => {
+      addRipple(opt, e);
+      setTimeout(() => {
+        if (opt.classList.contains('correct')) spawnSparkles(opt);
+      }, 20);
+    });
+  });
+
+  // Checklist pop animation
+  document.querySelectorAll('[data-check]').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.remove('pop');
+      void item.offsetWidth;
+      item.classList.add('pop');
+      setTimeout(() => item.classList.remove('pop'), 350);
+    });
+  });
 })();
 </script>
 </body>
