@@ -7,7 +7,7 @@
 <title>Секретный доступ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   /* ── VARIABLES ── */
   :root {
@@ -167,12 +167,132 @@
     pointer-events: none; border-radius: inherit;
   }
 
+  /* ── WRONG SHAKE ── */
+  @keyframes wrong-shake {
+    0%,100% { transform: translateX(0); }
+    15%     { transform: translateX(-10px) rotate(-1deg); }
+    30%     { transform: translateX(10px)  rotate(1deg); }
+    45%     { transform: translateX(-7px)  rotate(-.5deg); }
+    60%     { transform: translateX(7px)   rotate(.5deg); }
+    75%     { transform: translateX(-4px); }
+    90%     { transform: translateX(4px); }
+  }
+  .wrong-shake { animation: wrong-shake .45s cubic-bezier(.36,.07,.19,.97) both; }
+  .red-flash {
+    position: fixed; inset: 0; background: rgba(255,40,60,0.22);
+    pointer-events: none; z-index: 9994;
+    animation: red-fade .5s forwards;
+  }
+  @keyframes red-fade { to { opacity: 0; } }
+
+  /* ── MATRIX OVERLAY ── */
+  .matrix-overlay {
+    position: fixed; inset: 0; background: #000;
+    z-index: 9996; pointer-events: none;
+    opacity: 0; transition: opacity .4s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .matrix-overlay.active { opacity: 1; }
+  .matrix-overlay canvas { position: absolute; inset: 0; }
+  .matrix-overlay .matrix-text {
+    position: relative; z-index: 1;
+    color: #00ff41; font-family: monospace; font-size: 22px;
+    font-weight: bold; text-align: center; letter-spacing: .1em;
+    text-shadow: 0 0 20px #00ff41;
+    animation: matrix-blink 1s infinite;
+  }
+  @keyframes matrix-blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+  /* ── MUSIC BUTTON ── */
+  .music-btn {
+    position: fixed; bottom: 24px; right: 20px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    color: white; font-size: 20px; cursor: pointer;
+    z-index: 9000; display: flex; align-items: center; justify-content: center;
+    transition: background .2s, transform .15s;
+  }
+  .music-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+  .music-btn.muted { opacity: .45; }
+
   /* ── SCREEN TRANSITIONS ── */
   .screen { display: none; }
-  .screen.active { display: block; animation: screen-in .52s cubic-bezier(.16,1,.3,1); }
-  @keyframes screen-in {
-    from { opacity: 0; transform: translateY(16px) scale(.974); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+  .screen.active { display: block; }
+  .screen.entering {
+    display: block;
+    animation: slide-in .42s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .screen.exiting {
+    display: block;
+    animation: slide-out .38s cubic-bezier(.4,0,1,1) forwards;
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(60px) scale(.97); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes slide-out {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to   { opacity: 0; transform: translateX(-50px) scale(.96); }
+  }
+
+  /* ── MILESTONE TOAST ── */
+  .milestone-toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white; font-weight: 800; font-size: 18px;
+    padding: 14px 28px; border-radius: 999px;
+    box-shadow: 0 16px 48px rgba(124,106,255,0.5);
+    z-index: 9990; white-space: nowrap; opacity: 0; pointer-events: none;
+    letter-spacing: -0.01em; transition: none;
+  }
+  .milestone-toast.show {
+    animation: toast-in .5s cubic-bezier(.16,1,.3,1) forwards, toast-out .4s ease 2.6s forwards;
+  }
+  @keyframes toast-in {
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  @keyframes toast-out {
+    to { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  }
+
+  /* ── BEAUTIFUL LETTER ── */
+  .letter-wrap {
+    position: relative;
+    animation: letter-unfold .7s cubic-bezier(.16,1,.3,1) forwards;
+    transform-origin: top center;
+  }
+  @keyframes letter-unfold {
+    from { opacity: 0; transform: scaleY(0.3) translateY(-20px); }
+    to   { opacity: 1; transform: scaleY(1) translateY(0); }
+  }
+  .message-card.letter {
+    background: linear-gradient(160deg, #1a1535 0%, #0f1e2e 100%);
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 4px 24px 24px 24px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px; line-height: 1.8;
+    color: #e8eaf6;
+    padding: 32px 28px 28px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(124,106,255,0.08);
+    position: relative; overflow: hidden;
+  }
+  .message-card.letter::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  .message-card.letter::after {
+    content: '✉';
+    position: absolute; top: 12px; right: 16px;
+    font-size: 28px; opacity: 0.15;
+    font-family: sans-serif;
+  }
+  .message-card.letter p { margin: 0 0 12px; }
+  .message-card.letter .heart {
+    font-size: 40px; animation: heartbeat 2.2s ease-in-out infinite;
   }
 
   /* ── TYPOGRAPHY ── */
@@ -578,6 +698,12 @@
 <div class="blob blob-1"></div>
 <div class="blob blob-2"></div>
 <div class="blob blob-3"></div>
+<div class="milestone-toast" id="milestone-toast"></div>
+<div class="matrix-overlay" id="matrix-overlay">
+  <canvas id="matrix-canvas"></canvas>
+  <div class="matrix-text">ВЗЛОМ ЗАВЕРШЁН<br><span style="font-size:13px;opacity:.7;">получение доступа...</span></div>
+</div>
+<button class="music-btn" id="music-btn" title="Музыка">🎵</button>
 <div class="app">
   <div class="topbar">
     <div class="brand"><span class="brand-dot"></span> Система проверки</div>
@@ -774,34 +900,18 @@
         </div>
       </section>
 
-      <!-- 8.5. Gratitude meter -->
-      <section class="screen" data-screen="8-grat">
-        <div class="eyebrow"><span class="chip">08·5</span> Анализ отправителя</div>
-        <div class="emoji">💚</div>
-        <h1>Замер благодарности</h1>
-        <p class="lead">Перед открытием сообщения система измеряет, насколько отправитель благодарен.</p>
-        <div class="loader" style="margin-top:18px;">
-          <div class="loader-pct" id="grat-pct">0%</div>
-          <div class="loader-bar" id="grat-bar"><div class="loader-fill" id="grat-fill"></div></div>
-          <div class="loader-msg" id="grat-msg">Запуск измерения...</div>
-        </div>
-        <div class="btn-row" id="grat-actions" style="display:none;">
-          <button class="btn" data-next>Продолжить</button>
-        </div>
-      </section>
-
       <!-- 9. Loading -->
       <section class="screen" data-screen="8">
         <div class="eyebrow"><span class="chip">09</span> Подготовка данных</div>
         <div class="emoji">⏳</div>
-        <h1>Загрузка сообщения...</h1>
+        <h1>Почти готово...</h1>
         <div class="loader">
           <div class="loader-pct" id="load-pct">0%</div>
           <div class="loader-bar"><div class="loader-fill" id="load-fill"></div></div>
           <div class="loader-msg" id="load-msg">Инициализация...</div>
         </div>
         <div class="btn-row" id="load-actions" style="display:none;">
-          <button class="btn success" data-next>Открыть сообщение</button>
+          <button class="btn success" data-next>Продолжить</button>
         </div>
       </section>
 
@@ -1089,17 +1199,35 @@
         </div>
       </section>
 
+      <!-- 8.5. Gratitude meter (moved before letter) -->
+      <section class="screen" data-screen="8-grat">
+        <div class="eyebrow"><span class="chip">08·5</span> Анализ отправителя</div>
+        <div class="emoji">💚</div>
+        <h1>Замер благодарности</h1>
+        <p class="lead">Перед открытием сообщения система измеряет, насколько отправитель благодарен.</p>
+        <div class="loader" style="margin-top:18px;">
+          <div class="loader-pct" id="grat-pct">0%</div>
+          <div class="loader-bar" id="grat-bar"><div class="loader-fill" id="grat-fill"></div></div>
+          <div class="loader-msg" id="grat-msg">Запуск измерения...</div>
+        </div>
+        <div class="btn-row" id="grat-actions" style="display:none;">
+          <button class="btn" data-next>Продолжить</button>
+        </div>
+      </section>
+
       <!-- Secret message -->
       <section class="screen" data-screen="9">
         <div class="eyebrow"><span class="chip">✉️</span> Секретное сообщение</div>
         <div class="big-emoji">🎉</div>
-        <div class="message-card">
-          <p>Привет! 😊</p>
-          <p>Просто хотел сказать тебе спасибо за помощь — ты правда меня очень выручила.</p>
-          <p>Мне захотелось сделать что-то приятное в ответ. И заодно поблагодарить за то, что не пожалела на меня своего драгоценного времени.</p>
-          <p>Надеюсь, подарок тебе понравится, и я не ошибся с выбором 😊</p>
-          <p>Спасибо ещё раз!</p>
-          <span class="heart">💚</span>
+        <div class="letter-wrap">
+          <div class="message-card letter">
+            <p>Привет! 😊</p>
+            <p>Просто хотел сказать тебе спасибо за помощь — ты правда меня очень выручила.</p>
+            <p>Мне захотелось сделать что-то приятное в ответ. И заодно поблагодарить за то, что не пожалела на меня своего драгоценного времени.</p>
+            <p>Надеюсь, подарок тебе понравится, и я не ошибся с выбором 😊</p>
+            <p>Спасибо ещё раз!</p>
+            <span class="heart">💚</span>
+          </div>
         </div>
         <div class="btn-row">
           <button class="btn" data-next>Дальше</button>
@@ -1175,25 +1303,109 @@
 
   const stats = { startTime: null, firstTryCount: 0, totalQuizzes: 0 };
 
+  // ── Web Audio ──────────────────────────────────────────────────────────────
+  let _audioCtx = null;
+  function getAudioCtx() {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // на iOS/Safari контекст часто «засыпает» — будим, иначе звук запаздывает
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    return _audioCtx;
+  }
+  function playTone(freq, type, dur, gain) {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(gain, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + dur);
+    } catch(e) {}
+  }
+  // фортепианная нота для UI-кликов: удар молоточка + обертоны + затухание
+  function pianoTone(freq, dur, vol, delay) {
+    try {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime + (delay || 0);
+      const partials = [[1, 1], [2, 0.45], [3, 0.22], [4, 0.10]];
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, t);
+      master.gain.linearRampToValueAtTime(vol, t + 0.005);
+      master.gain.exponentialRampToValueAtTime(vol * 0.3, t + dur * 0.4);
+      master.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      master.connect(ctx.destination);
+      partials.forEach(([mult, amp]) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = freq * mult;
+        g.gain.value = amp;
+        o.connect(g); g.connect(master);
+        o.start(t); o.stop(t + dur + 0.05);
+      });
+    } catch(e) {}
+  }
+  function playClick() {
+    pianoTone(523.25, 0.32, 0.16); // C5 — мягкий клик перелистывания
+  }
+  function playCorrect() {
+    // восходящее трезвучие C–E–G как лёгкий фортепианный аккорд
+    pianoTone(523.25, 0.5, 0.20, 0);
+    pianoTone(659.25, 0.5, 0.20, 0.09);
+    pianoTone(783.99, 0.6, 0.22, 0.2);
+  }
+  function playWrong() {
+    // мягкий нисходящий фортепианный полутон, без резкого «пилообразного» звука
+    pianoTone(311.13, 0.45, 0.16, 0);     // D#4
+    pianoTone(277.18, 0.55, 0.14, 0.12);  // C#4
+  }
+
+  // ── Milestone toast ────────────────────────────────────────────────────────
+  let milestoneShown50 = false;
+  const milestoneToast = document.getElementById('milestone-toast');
+  function checkMilestone(pct) {
+    if (!milestoneShown50 && pct >= 50) {
+      milestoneShown50 = true;
+      milestoneToast.textContent = '🏆 Половина пути! Ты справляешься!';
+      milestoneToast.classList.add('show');
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80, 40, 120]);
+      setTimeout(() => milestoneToast.classList.remove('show'), 3000);
+    }
+  }
+
   function setProgress(i) {
     const pct = Math.round(((i) / (totalScreens - 1)) * 100);
     progressEl.style.width = pct + '%';
     stepCounter.textContent = (i + 1) + ' / ' + totalScreens;
+    checkMilestone(pct);
   }
 
   function goTo(i) {
     if (i < 0 || i >= totalScreens) return;
     if (stats.startTime === null) stats.startTime = Date.now();
-    screens[currentIndex].classList.remove('active');
+    playClick();
+    if (navigator.vibrate) navigator.vibrate(10);
+
+    const prev = screens[currentIndex];
     currentIndex = i;
-    screens[currentIndex].classList.add('active');
+    const next = screens[currentIndex];
+
+    prev.classList.add('exiting');
+    next.classList.add('active', 'entering');
     setProgress(i);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const name = screens[currentIndex].dataset.screen;
+    setTimeout(() => {
+      prev.classList.remove('active', 'exiting');
+      next.classList.remove('entering');
+    }, 420);
+
+    const name = next.dataset.screen;
     if (name === '8') startLoading();
     if (name === '8-grat') startGratitude();
-    if (name === '25') { launchConfetti(); populateStats(); }
+    if (name === '25') { showMatrix(); launchConfetti(); populateStats(); }
   }
 
   // wire all next buttons
@@ -1228,6 +1440,8 @@
           }
           opts.forEach(o => o.classList.add('locked'));
           opt.classList.add('correct');
+          playCorrect();
+          if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
           if (feedbackEl) {
             feedbackEl.textContent = msg;
             feedbackEl.className = 'feedback show ok';
@@ -1237,6 +1451,18 @@
           firstTry = false;
           opt.classList.add('wrong');
           opt.classList.add('locked');
+          playWrong();
+          if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
+          // shake screen + red flash
+          const appEl = document.querySelector('.app');
+          appEl.classList.remove('wrong-shake');
+          void appEl.offsetWidth;
+          appEl.classList.add('wrong-shake');
+          appEl.addEventListener('animationend', () => appEl.classList.remove('wrong-shake'), { once: true });
+          const flash = document.createElement('div');
+          flash.className = 'red-flash';
+          document.body.appendChild(flash);
+          flash.addEventListener('animationend', () => flash.remove());
           if (feedbackEl) {
             feedbackEl.textContent = msg;
             feedbackEl.className = 'feedback show no';
@@ -1307,9 +1533,9 @@
     if (loadStarted) return;
     loadStarted = true;
     const steps = [
-      [10, 'Поиск нужных слов...'],
-      [37, 'Проверка искренности...'],
-      [64, 'Шифрование пожеланий...'],
+      [10, 'Загрузка сценария...'],
+      [37, 'Проверка готовности...'],
+      [64, 'Подготовка заданий...'],
       [89, 'Окончательная сборка...'],
       [99, 'Ещё пара секунд...'],
       [99, 'Ещё пара секунд...'],
@@ -1519,36 +1745,220 @@
     });
   });
 
-  // === SPARKLE BURST ===
-  function spawnSparkles(el) {
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const icons = ['✨','⭐','💫','🌟','✦','⚡'];
-    for (let i = 0; i < 9; i++) {
-      const s = document.createElement('span');
-      s.className = 'sparkle';
-      s.textContent = icons[Math.floor(Math.random() * icons.length)];
-      const angle = (i / 9) * 2 * Math.PI + Math.random() * 0.4;
-      const dist = 55 + Math.random() * 70;
-      s.style.left = cx + 'px';
-      s.style.top  = cy + 'px';
-      s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
-      s.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
-      s.style.setProperty('--dr', (Math.random() * 360 - 180) + 'deg');
-      s.style.animationDelay = (Math.random() * 0.12) + 's';
-      document.body.appendChild(s);
-      setTimeout(() => s.remove(), 1000);
+  // ── MATRIX OVERLAY ────────────────────────────────────────────────────────
+  function showMatrix() {
+    const overlay = document.getElementById('matrix-overlay');
+    const canvas  = document.getElementById('matrix-canvas');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    const cols = Math.floor(canvas.width / 16);
+    const drops = Array.from({ length: cols }, () => Math.random() * -50);
+    const chars = 'アイウエオカキクケコサシスセソABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&?!';
+
+    overlay.classList.add('active');
+    let rafId;
+    function draw() {
+      ctx.fillStyle = 'rgba(0,0,0,0.07)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '15px monospace';
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const brightness = Math.random() > 0.05 ? '#00cc33' : '#aaffaa';
+        ctx.fillStyle = brightness;
+        ctx.fillText(char, i * 16, drops[i] * 16);
+        if (drops[i] * 16 > canvas.height && Math.random() > 0.97) drops[i] = 0;
+        drops[i] += 0.6;
+      }
+      rafId = requestAnimationFrame(draw);
+    }
+    rafId = requestAnimationFrame(draw);
+
+    setTimeout(() => {
+      cancelAnimationFrame(rafId);
+      overlay.style.transition = 'opacity .7s';
+      overlay.classList.remove('active');
+      setTimeout(() => {
+        overlay.style.transition = '';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }, 700);
+    }, 2800);
+  }
+
+  // ── BACKGROUND MUSIC ──────────────────────────────────────────────────────
+  let bgGain = null, bgPlaying = false, bgScheduleTimer = null;
+
+  function scheduleMusic(startTime) {
+    if (!bgPlaying) return;
+    const ctx = getAudioCtx();
+    const bpm = 72, beat = 60 / bpm;
+
+    // фортепианная нота: резкая атака + затухание + обертоны, как у настоящего пианино
+    function piano(freq, t, dur, vol) {
+      const partials = [[1, 1], [2, 0.45], [3, 0.22], [4, 0.10]];
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, t);
+      master.gain.linearRampToValueAtTime(vol, t + 0.006);          // быстрый удар молоточка
+      master.gain.exponentialRampToValueAtTime(vol * 0.3, t + dur * 0.4);
+      master.gain.exponentialRampToValueAtTime(0.0001, t + dur);    // естественное затухание
+      master.connect(bgGain);
+      partials.forEach(([mult, amp]) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = freq * mult;
+        g.gain.value = amp;
+        o.connect(g); g.connect(master);
+        o.start(t); o.stop(t + dur + 0.05);
+      });
+    }
+
+    // прогрессия C – G – Am – F, 4 такта по 2 доли
+    const bars = [
+      { bass: 65.41, arp: [261.63, 329.63, 392.00, 523.25], pad: [130.81, 164.81, 196.00] }, // C
+      { bass: 49.00, arp: [246.94, 293.66, 392.00, 493.88], pad: [123.47, 146.83, 196.00] }, // G
+      { bass: 55.00, arp: [261.63, 329.63, 440.00, 523.25], pad: [130.81, 164.81, 220.00] }, // Am
+      { bass: 43.65, arp: [261.63, 349.23, 440.00, 523.25], pad: [130.81, 174.61, 220.00] }, // F
+    ];
+
+    bars.forEach((b, i) => {
+      const t0 = startTime + i * beat * 2;
+      // бас — левая рука на сильную долю
+      piano(b.bass, t0, beat * 1.7, 0.32);
+      // мягкий пад-аккорд под весь такт
+      b.pad.forEach(f => piano(f, t0, beat * 1.9, 0.05));
+      // арпеджио — правая рука, 6 нот вверх-вниз через такт
+      const pattern = [0, 1, 2, 3, 2, 1];
+      const step = (beat * 2) / pattern.length;
+      pattern.forEach((idx, k) => piano(b.arp[idx], t0 + k * step, step * 1.3, 0.11));
+    });
+
+    const loopDur = beat * 8;
+    bgScheduleTimer = setTimeout(() => scheduleMusic(startTime + loopDur), (loopDur - 0.5) * 1000);
+  }
+
+  function startBgMusic() {
+    if (bgPlaying) return;
+    bgPlaying = true;
+    const ctx = getAudioCtx();
+    bgGain = ctx.createGain();
+    bgGain.gain.setValueAtTime(0, ctx.currentTime);
+    bgGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 2);
+    bgGain.connect(ctx.destination);
+    scheduleMusic(ctx.currentTime + 0.1);
+  }
+
+  function stopBgMusic() {
+    bgPlaying = false;
+    clearTimeout(bgScheduleTimer);
+    if (bgGain) {
+      bgGain.gain.setTargetAtTime(0, getAudioCtx().currentTime, 0.4);
     }
   }
 
-  // Hook sparkles & ripple onto quiz options
+  const musicBtn = document.getElementById('music-btn');
+
+  function updateMusicBtn() {
+    musicBtn.textContent = bgPlaying ? '🔇' : '🎵';
+    musicBtn.title = bgPlaying ? 'Выключить музыку' : 'Включить музыку';
+    musicBtn.classList.toggle('muted', !bgPlaying);
+  }
+
+  // Start on first user interaction (browsers block audio before that)
+  function autoStartMusic() {
+    startBgMusic();
+    updateMusicBtn();
+    document.removeEventListener('click', autoStartMusic);
+    document.removeEventListener('touchstart', autoStartMusic);
+  }
+  document.addEventListener('click', autoStartMusic, { once: true });
+  document.addEventListener('touchstart', autoStartMusic, { once: true });
+
+  musicBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // don't double-trigger autoStart
+    if (bgPlaying) { stopBgMusic(); } else { startBgMusic(); }
+    updateMusicBtn();
+  });
+
+  // ── CLAP BURST ────────────────────────────────────────────────────────────
+  // одиночный хлопок — короткий шумовой щелчок
+  function oneClap(ctx, when, vol) {
+    const dur = 0.07;
+    const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let k = 0; k < data.length; k++) {
+      const t = k / data.length;
+      data[k] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.5);
+    }
+    const src = ctx.createBufferSource();
+    const g = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 1500;
+    filter.Q.value = 1;
+    g.gain.setValueAtTime(vol, when);
+    g.gain.exponentialRampToValueAtTime(0.001, when + dur);
+    src.buffer = buf;
+    src.connect(filter); filter.connect(g); g.connect(ctx.destination);
+    src.start(when);
+  }
+  // плотная аплодисментная вспышка ПРЯМО в момент нажатия (без задержек)
+  function playClap() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      // несколько хлопков в первые ~120 мс — звучит как короткая овация, но синхронно с тапом
+      const offs = [0, 0.018, 0.035, 0.06, 0.09, 0.12];
+      offs.forEach((o, i) => oneClap(ctx, now + o, 0.6 - i * 0.07));
+    } catch(e) {}
+  }
+
+  function launchClaps(originEl) {
+    playClap(); // звук — один раз, сразу в момент нажатия
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const count = 10;
+    const claps = ['👏','👏','👏','✨','⭐','🎉','💫','👏'];
+
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        const emoji = claps[Math.floor(Math.random() * claps.length)];
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.2;
+        const speed = 60 + Math.random() * 80;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+        const size = 22 + Math.floor(Math.random() * 16);
+        el.textContent = emoji;
+        el.style.cssText = `
+          position:fixed; left:${cx}px; top:${cy}px;
+          font-size:${size}px; line-height:1; pointer-events:none;
+          z-index:9999; user-select:none; will-change:transform;
+        `;
+        document.body.appendChild(el);
+
+        const start = performance.now();
+        const dur = 700 + Math.random() * 400;
+        function tick(now) {
+          const t = Math.min((now - start) / dur, 1);
+          const ease = 1 - t * t;
+          const gravity = t * t * 120;
+          el.style.transform = `translate(${vx * ease}px, ${vy * ease + gravity}px) scale(${1 - t * 0.5}) rotate(${(Math.random() > 0.5 ? 1 : -1) * t * 30}deg)`;
+          el.style.opacity = String(Math.max(0, 1 - t * 1.3));
+          if (t < 1) requestAnimationFrame(tick);
+          else el.remove();
+        }
+        requestAnimationFrame(tick);
+      }, i * 60);
+    }
+  }
+
+  // Hook claps onto quiz options
   document.querySelectorAll('.opt').forEach(opt => {
     opt.addEventListener('click', e => {
       addRipple(opt, e);
-      setTimeout(() => {
-        if (opt.classList.contains('correct')) spawnSparkles(opt);
-      }, 20);
+      if (opt.classList.contains('correct')) launchClaps(opt);
     });
   });
 
