@@ -1,0 +1,8 @@
+# Duplicate/backup copies of the page
+index [0-9]*.html
+
+# Generated QR images
+qr.png
+qr-styled.png
+qr-styled-hires.png
+qr-postcard-a6.png
